@@ -34,7 +34,9 @@ class histo{
                 this.cumulative_bins = [ ]
 
                 this.clearDrawing(); // clear any currently drawn bins
-
+                this.drawTitle(); // draw the title for this hist
+                this.drawZoomOut(); // Zoom out button
+                this.drawZoomIn(); // Zoom out button
                 this.draw();
         }
 
@@ -51,7 +53,6 @@ class histo{
         // current data
         getPercentileBin(percentile) {
                 var target_val = percentile*this.total_samples;
-                console.log("Target Val = " + target_val);
                 for(var i=0; i<this.numBins; i++) {
                         if(this.cumulative_bins[i] > target_val)
                                 return i-1;
@@ -69,20 +70,23 @@ class histo{
         }
 
         // Draws a dashed line at the percentile point
-        drawPercentile(percentile) {
+        drawPercentile(percentile, offset=0) {
                 var idx = this.getPercentileBin(percentile);
-                var label = (percentile*100) + "% = " + this.binVal(idx) + " ms";
+                var label = (percentile*100).toFixed(2) + "% = " + this.binVal(idx).toFixed(2) + " ms";
+                if(idx == (this.numBins - 2)){
+                        label = (percentile*100).toFixed(2) + "% >= " + this.binVal(idx).toFixed(2) + " ms";
+                }
                 if(!Number.isNaN(this.binVal(idx)))
-                        this.drawInfo(label, this.binPos(idx));
+                        this.drawInfo(label, this.binPos(idx), 25 + offset);
         }
 
         // Add an info line
-        drawInfo(text, x) {
+        drawInfo(text, x, offset=5) {
                 // Draw the vertical line                
                 this.svg.append("line")
                         .attr("id", this.name+"_histbin")
                         .attr("x1", x)
-                        .attr("y1", this.y + this.maxHeight + 15)
+                        .attr("y1", this.y + this.maxHeight + 15 + offset)
                         .attr("x2", x)
                         .attr("y2", this.y)
                         .attr("stroke-width", 1)
@@ -95,8 +99,83 @@ class histo{
                         .attr("font-size", "12px")
                         .attr("fill", this.colour.highlight)
                         .attr("x", x - 10)
-                        .attr("y", this.y + this.maxHeight + 30)
+                        .attr("y", this.y + this.maxHeight + 30 + offset)
                         .text(text);
+        }
+
+        // Draw Title
+        drawTitle() {
+                this.svg.append("text")
+                        .attr("id", this.name+"_title")
+                        .attr("font-family", "sans-serif")
+                        .attr("font-size", "24px")
+                        .attr("fill", this.colour.base)
+                        .attr("x", this.x)
+                        .attr("y", this.y - 20)
+                        .text(this.name);
+        }
+
+        // draws a button that can increase the maximum and (zoom) out 
+        drawZoomOut(){
+               var that = this;
+               this.svg.append("text")
+                       .attr("id", this.name+"_zoomout")
+                       .attr("font-family", "sans-serif")
+                       .attr("font-size", "36px")
+                       .attr("fill", this.colour.base)
+                       .attr("x", this.x  + this.numBins*(this.binWidth + this.binSpace) + 30)
+                       .attr("y", this.y)
+                       .on("mouseover", function() { 
+                               d3.select("#"+that.name+"_zoomout").attr("fill", that.colour.highlight);
+                       })
+                       .on("mouseout", function() {
+                               d3.select("#"+that.name+"_zoomout").attr("fill", that.colour.base); 
+                       })
+                       .on("click", function() {
+                               that.incMax(that);
+                       })
+                       .text("-");
+        }
+
+        clear() {
+                for(var i=0; i<this.numBins; i++) {
+                        this.bins[i] = 0;
+                }
+        }
+
+        incMax(cur){
+                cur.maxBin = cur.maxBin + 1.0;
+                cur.binSize = (cur.maxBin - cur.minBin)/cur.numBins;
+                cur.clear();
+                console.log("Incrementing the max max:" + this.maxBin);
+        }
+
+        decMax(cur){
+                cur.maxBin = cur.maxBin - 1.0;
+                cur.binSize = (cur.maxBin - cur.minBin)/cur.numBins;
+                cur.clear();
+                console.log("Decrementing the max max:" + this.minBin);
+        }
+
+        drawZoomIn(){
+               var that = this;
+               this.svg.append("text")
+                       .attr("id", this.name+"_zoomin")
+                       .attr("font-family", "sans-serif")
+                       .attr("font-size", "36px")
+                       .attr("fill", this.colour.base)
+                       .attr("x", this.x  + this.numBins*(this.binWidth + this.binSpace) + 30)
+                       .attr("y", this.y + 50)
+                       .on("mouseover", function() { 
+                               d3.select("#"+that.name+"_zoomin").attr("fill", that.colour.highlight);
+                       })
+                       .on("mouseout", function() {
+                               d3.select("#"+that.name+"_zoomin").attr("fill", that.colour.base); 
+                       })
+                       .on("click", function() {
+                               that.decMax(that);
+                       })
+                       .text("+");
         }
 
         // Draws the histogram from the current data stored
@@ -124,18 +203,14 @@ class histo{
 
                 // Percentiles
                 this.drawPercentile(0.5);
+                this.drawPercentile(0.75, 15);
+                this.drawPercentile(0.99, 30);
+                this.drawPercentile(0.9999, 30);
 
         }
 
         // deletes all the histogram bins shown rendered on the display
-        clearDrawing() { d3.selectAll("#"+this.name+"_histbin").remove(); }
-
-        // clears all the data stored in this class
-        clearData() { 
-                for(var i=0; i<this.numBins; i++){
-                        this.bins[i] = 0;
-                }
-        }
+        clearDrawing() { d3.selectAll("#"+this.name+"_histbin").remove(); this.total_samples = 0; }
 
         // Max val -- returns the value in the largest bin
         maxVal() { 
