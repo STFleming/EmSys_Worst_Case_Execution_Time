@@ -72,9 +72,9 @@ class histo{
         // Draws a dashed line at the percentile point
         drawPercentile(percentile, offset=0) {
                 var idx = this.getPercentileBin(percentile);
-                var label = (percentile*100).toFixed(2) + "% = " + this.binVal(idx).toFixed(2) + " ms";
+                var label = (percentile*100).toFixed(2) + "% = " + this.binVal(idx).toFixed(2) + " us";
                 if(idx == (this.numBins - 2)){
-                        label = (percentile*100).toFixed(2) + "% >= " + this.binVal(idx).toFixed(2) + " ms";
+                        label = (percentile*100).toFixed(2) + "% >= " + this.binVal(idx).toFixed(2) + " us";
                 }
                 if(!Number.isNaN(this.binVal(idx)))
                         this.drawInfo(label, this.binPos(idx), 25 + offset);
@@ -144,14 +144,14 @@ class histo{
         }
 
         incMax(cur){
-                cur.maxBin = cur.maxBin + 1.0;
+                cur.maxBin = cur.maxBin + 25.0;
                 cur.binSize = (cur.maxBin - cur.minBin)/cur.numBins;
                 cur.clear();
                 console.log("Incrementing the max max:" + this.maxBin);
         }
 
         decMax(cur){
-                cur.maxBin = cur.maxBin - 1.0;
+                cur.maxBin = cur.maxBin - 25.0;
                 cur.binSize = (cur.maxBin - cur.minBin)/cur.numBins;
                 cur.clear();
                 console.log("Decrementing the max max:" + this.minBin);
@@ -198,8 +198,8 @@ class histo{
                 }
 
                 // info lines on the histogram
-                this.drawInfo(this.minBin + " ms", this.x);
-                this.drawInfo(" >= "+this.maxBin + " ms", this.x + this.numBins*(this.binWidth + this.binSpace));
+                this.drawInfo(this.minBin + " us", this.x);
+                this.drawInfo(" >= "+this.maxBin + " us", this.x + this.numBins*(this.binWidth + this.binSpace));
 
                 // Percentiles
                 this.drawPercentile(0.5);
