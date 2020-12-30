@@ -17,8 +17,4 @@ rvec = rand(15)
 rmat = rand(15, 15)
 
 while True:
-   for i in range(15):
-       res[i] = 0.0;
-       for j in range(15):
-           res[i] += rvec[j] * rmat[i][j]
-
+    res = rmat.dot(rvec)

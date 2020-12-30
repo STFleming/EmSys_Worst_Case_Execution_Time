@@ -13,9 +13,9 @@ import asyncio
 import websockets
 
 # initialisation
-res = [0.0 for x in range(15)]
-rvec = rand(15)
-rmat = rand(15, 15)
+res = [0.0 for x in range(125)]
+rvec = rand(125)
+rmat = rand(125, 125)
 
 # websocket initialisation
 async def hello():
@@ -23,12 +23,9 @@ async def hello():
     async with websockets.connect(uri) as websocket:
         while True:
             t0 = time()
-            for i in range(15):
-                res[i] = 0.0
-                for j in range(15):
-                    res[i] += rvec[j] * rmat[i][j]
+            res = rmat.dot(rvec)
             t1 = time()
-            time_sample = "{:.4f}".format((t1 - t0)*1000.0)
+            time_sample = "{:.4f}".format((t1 - t0)*1000000.0)
             await websocket.send(time_sample)
 
 asyncio.get_event_loop().run_until_complete(hello())
