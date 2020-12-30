@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+        <head>
+                <script src="https://d3js.org/d3.v4.min.js"></script>
+                <script src="histo.js"></script>
+                <script src="colourScheme.js"></script>
+        </head>
+
+        <body>
+        <script>
+                // the colour scheme
+                let colour = new colourScheme("dark");
+
+
+                var margin = {top: 0, right: 0, bottom: 0, left: 0},
+                    width = 2000 - margin.left - margin.right,
+                    height = 3500 - margin.top - margin.bottom;
+
+                // the main svg canvas
+                var svg = d3.select("body").append("svg")
+                            .attr("width", width + margin.left + margin.right)
+                            .attr("height", height + margin.top + margin.bottom)
+                            .append("g").attr("transform", 
+                                    "translate(" + margin.left + "," + margin.top + ")");
+
+                // the background rect
+                svg.append("rect")
+                   .attr("x", 0)
+                   .attr("y", 0)
+                   .attr("width", width + margin.left + margin.right)
+                   .attr("height", height + margin.top + margin.bottom)
+                   .attr("fill", colour.env);
+
+                var socket = new WebSocket("ws://localhost:1235");
+
+                // The histogram
+                var hgram = new histo(svg, colour, 4096, 1.9, 10.0, 20, 100, "hgram"); 
+
+                // receive a histogram item
+                var redraw_count = 0;
+                socket.onmessage = function(event) {
+                        //console.log(event.data);
+                        hgram.addItem(event.data);
+                        redraw_count = redraw_count + 1;
+                        if(redraw_count > 150) {
+                                hgram.draw();
+                                redraw_count = 0;
+                        }
+                }
+                
+        </script>
+        </body>
+</html>
+
