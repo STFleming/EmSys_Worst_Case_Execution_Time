@@ -7,6 +7,7 @@
 # author: stf
 
 from time import time
+from time import sleep
 from numpy.random import seed
 from numpy.random import rand
 import asyncio
