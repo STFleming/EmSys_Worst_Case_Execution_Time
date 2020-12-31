@@ -48,7 +48,7 @@
                                 case "PYNQ":
                                         PYNQ_hgram.addItem(msg.val);
                                         PYNQ_redraw_count = PYNQ_redraw_count + 1;
-                                        if(PYNQ_redraw_count > 200) {
+                                        if(PYNQ_redraw_count > 500) {
                                                 PYNQ_hgram.draw();
                                                 PYNQ_redraw_count = 0;
                                         }
@@ -57,7 +57,7 @@
                                 case "ESP32":
                                         ESP32_hgram.addItem(msg.val);
                                         ESP32_redraw_count = ESP32_redraw_count + 1;
-                                        if(ESP32_redraw_count > 200) {
+                                        if(ESP32_redraw_count > 500) {
                                                 ESP32_hgram.draw();
                                                 ESP32_redraw_count = 0;
                                         }

@@ -9,6 +9,7 @@ class histo{
                 this.binWidth = 2;
                 this.binSpace = 1;
                 this.maxHeight = 250; // the maximum allowable height of the histogram
+                this.alpha = 0.8;
 
                 this.colour = colour;
 
@@ -25,8 +26,10 @@ class histo{
 
                 // setup the bins
                 this.bins = [ ];
+                this.bins_staging = [ ]; // stage the values before exponential moving average
                 for(var i =0; i<this.numBins; i++) {
                         this.bins[i] = 0;
+                        this.bins_staging[i] = 0;
                 }
 
                 // for tracking the cumulative total in the bins
@@ -138,8 +141,10 @@ class histo{
         }
 
         clear() {
+                this.total_samples = 0;
                 for(var i=0; i<this.numBins; i++) {
                         this.bins[i] = 0;
+                        this.cumulative_bins[i] = 0;
                 }
         }
 
@@ -178,10 +183,20 @@ class histo{
                        .text("+");
         }
 
+        // Applies an exponential moving average (called once we want to draw)
+        ema(){
+                for(var i=0; i<this.numBins; i++) {
+                        this.bins[i] = (this.bins[i] + this.bins_staging[i])*this.alpha + (this.alpha - 1.0)*this.bins[i];
+                }
+        }
+
         // Draws the histogram from the current data stored
         draw() {
                 this.clearDrawing();
                 this.cumulativeTotalBinCalc();
+
+                this.ema(); // apply all the values set to be staged in an EMA fashion
+                this.clearStaging(); // clear all the values in the staging area
 
                 // scale
                 var maxv = this.maxVal();
@@ -222,6 +237,13 @@ class histo{
                 return max;
         }
 
+        // clear staging area
+        clearStaging(){
+                for(var i = 0; i<this.numBins; i++) {
+                        this.bins_staging[i] = 0;
+                }
+        }
+
         addItem(item){
                 // convert the item to a floating point number
                 var val = parseFloat(item);
@@ -232,12 +254,12 @@ class histo{
                     var divided = shifted / this.binSize;
                     var rounded = Math.floor(divided);
                     if(rounded >= this.numBins){
-                        this.bins[this.numBins-1] = this.bins[this.numBins-1] + 1;
+                        this.bins_staging[this.numBins-1] = this.bins_staging[this.numBins-1] + 1;
                     } else {
-                        this.bins[rounded] = this.bins[rounded] + 1;
+                        this.bins_staging[rounded] = this.bins_staging[rounded] + 1;
                     }
                 } else {
-                        this.bins[0] = this.bins[0] + 1;
+                        this.bins_staging[0] = this.bins_staging[0] + 1;
                 }
                 
         }
