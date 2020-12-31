@@ -33,18 +33,35 @@
 
                 var socket = new WebSocket("ws://localhost:1235");
 
-                // The histogram
-                var hgram = new histo(svg, colour, 256, 150.0, 300.0, 20, 100, "PYNQ"); 
+                // The histograms
+                var PYNQ_hgram = new histo(svg, colour, 256, 150.0, 300.0, 20, 100, "PYNQ"); 
+                var ESP32_hgram = new histo(svg, colour, 256, 580.0, 630.0, 20, 500, "ESP32"); 
 
                 // receive a histogram item
-                var redraw_count = 0;
+                var PYNQ_redraw_count = 0;
+                var ESP32_redraw_count = 0;
                 socket.onmessage = function(event) {
                         //console.log(event.data);
-                        hgram.addItem(event.data);
-                        redraw_count = redraw_count + 1;
-                        if(redraw_count > 150) {
-                                hgram.draw();
-                                redraw_count = 0;
+                        var msg = JSON.parse(event.data);
+                        
+                        switch(msg.id) {
+                                case "PYNQ":
+                                        PYNQ_hgram.addItem(msg.val);
+                                        PYNQ_redraw_count = PYNQ_redraw_count + 1;
+                                        if(PYNQ_redraw_count > 200) {
+                                                PYNQ_hgram.draw();
+                                                PYNQ_redraw_count = 0;
+                                        }
+                                break;
+
+                                case "ESP32":
+                                        ESP32_hgram.addItem(msg.val);
+                                        ESP32_redraw_count = ESP32_redraw_count + 1;
+                                        if(ESP32_redraw_count > 200) {
+                                                ESP32_hgram.draw();
+                                                ESP32_redraw_count = 0;
+                                        }
+                                break;
                         }
                 }
                 

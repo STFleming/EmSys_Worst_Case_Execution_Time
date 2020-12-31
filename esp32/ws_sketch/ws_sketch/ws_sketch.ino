@@ -4,7 +4,7 @@
 #define SIZE 125
 
 const char* ssid = "stf_0x2a"; 
-const char* password = "n1cetry"; 
+const char* password = "jyrs3CkNqtqy"; 
 
 using namespace websockets;
 
@@ -84,6 +84,8 @@ void compute(){
 unsigned long t0;
 unsigned long t1;
 
+String json_str;
+
 void loop() {
     client.poll();
     t0 = micros();
@@ -92,5 +94,7 @@ void loop() {
 
     unsigned long usec = (t1 - t0);
 
-    client.send(String(usec));
+    json_str = "{ \"id\" : \"ESP32\", \"val\":" + String(usec) + "}";
+
+    client.send(json_str);
 }
