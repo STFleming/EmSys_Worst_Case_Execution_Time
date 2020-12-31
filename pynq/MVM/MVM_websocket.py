@@ -26,7 +26,8 @@ async def hello():
             res = rmat.dot(rvec)
             t1 = time()
             time_sample = "{:.4f}".format((t1 - t0)*1000000.0)
-            await websocket.send(time_sample)
+            json_str = "{ \"id\" : \"PYNQ\", \"val\":" + time_sample + "}"
+            await websocket.send(json_str)
 
 asyncio.get_event_loop().run_until_complete(hello())
 
