@@ -48,16 +48,22 @@
                                 case "PYNQ":
                                         PYNQ_hgram.addItem(msg.val);
                                         PYNQ_redraw_count = PYNQ_redraw_count + 1;
-                                        if(PYNQ_redraw_count > 500) {
+                                        if(PYNQ_redraw_count > 150) {
                                                 PYNQ_hgram.draw();
                                                 PYNQ_redraw_count = 0;
                                         }
                                 break;
 
                                 case "ESP32":
-                                        ESP32_hgram.addItem(msg.val);
+                                        // the value here is a counter operating at 40MHz
+                                        var adjusted_secs = msg.val * (1/40000000);
+                                        var adjusted_usec = adjusted_secs * 1000000;
+                                        ESP32_hgram.addItem(adjusted_usec);
+
+                                        //ESP32_hgram.addItem(msg.val);
+
                                         ESP32_redraw_count = ESP32_redraw_count + 1;
-                                        if(ESP32_redraw_count > 500) {
+                                        if(ESP32_redraw_count > 150) {
                                                 ESP32_hgram.draw();
                                                 ESP32_redraw_count = 0;
                                         }

@@ -9,7 +9,7 @@ class histo{
                 this.binWidth = 2;
                 this.binSpace = 1;
                 this.maxHeight = 250; // the maximum allowable height of the histogram
-                this.alpha = 0.8;
+                this.alpha = 0.95;
 
                 this.colour = colour;
 
@@ -220,7 +220,7 @@ class histo{
                 this.drawPercentile(0.5);
                 this.drawPercentile(0.75, 15);
                 this.drawPercentile(0.99, 30);
-                this.drawPercentile(0.9999, 30);
+                this.drawPercentile(0.9999, 45);
 
         }
 
