@@ -77,8 +77,10 @@ volatile float rvec [SIZE];
 volatile float rmat [SIZE][SIZE];
 float res  [SIZE];
 
+
 WebsocketsClient client;
 void setup() {
+      
     Serial.begin(115200);
     // Connect to wifi
     WiFi.begin(ssid, password);
