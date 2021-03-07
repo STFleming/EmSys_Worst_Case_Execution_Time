@@ -62,5 +62,16 @@ void compute(){
 }
 ```
 
+__Include a diagram of the experimental setup__
 
+
+![](imgs/pynq_wcet_base.gif)
+
+![](imgs/wcet.gif)
+
+![](imgs/wcet_zooming_out.gif)
+
+![](imgs/wcet-ddos.gif)
+
+![](imgs/wcet-pynq-ssh.gif)
 

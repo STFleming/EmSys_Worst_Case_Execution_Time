@@ -100,7 +100,7 @@ void setup() {
     client.onEvent(onEventsCallback);
 
     // Connect to server
-    client.connect("ws://192.168.0.102:1234");
+    client.connect("ws://192.168.0.104:1234");
 
     // Send a message
     //client.send("Hello Server");
