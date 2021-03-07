@@ -35,3 +35,32 @@ Variations in execution time occur at all levels of the computer stack and in ma
 
 Let's dig into a few of these in a bit more detail; unfortunately, we don't have time to explore everything that can introduce non-determinism (that would take a while).
 
+
+## Demonstration
+
+We are going to compare the execution of a benchmark function on two different platforms.
+
+1. An dual-core (800MHz) ARM processor running Linux
+2. Our ESP32 (230MHz) device                    
+
+The benchmark we will use is a matrix-vector multiplication, a typical operation used in machine learning applications or signal processing. 
+
+Our benchmark code looks like this:
+
+```C
+volatile float rvec [125];
+volatile float rmat [125][125];
+float res [125];
+
+void compute(){
+  for(int i=0; i<125; i++) {
+    res[i] = 0.0;
+    for(int j=0; j<125; j++) {
+      res[i] += rvec[j] * rmat[i][j];    
+    }
+  }
+}
+```
+
+
+
