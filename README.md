@@ -25,16 +25,51 @@ For real-time systems, such as the self-driving car we discussed earlier, timing
 
 ### Sources of non-determinism
 
+__TODO:__ Include a picture of the stack
+
 Variations in execution time occur at all levels of the computer stack and in many different places. Some examples at various levels are:
 
 1. OS scheduler: when deciding which task to execute when
+4. In the Memory Hierarchy: disk -> RAM -> cache L2 -> cache L1
 2. Virtual Memory
 3. I/O: Arbitration and access to busses
-4. In the Memory Hierarchy: disk -> RAM -> cache L2 -> cache L1
 5. Internally within the CPU: branch prediction, speculative execution
 
 Let's dig into a few of these in a bit more detail; unfortunately, we don't have time to explore everything that can introduce non-determinism (that would take a while).
 
+### OS Scheduler
+
+Linux uses something called the __Completely Fair Scheduler__ ([CFS](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler)), which we won't go into the details of here. But the basic principles are that we have multiple processes, and the scheduler allocated processes to hardware CPUs trying to give all the processes an equal amount of resources.
+
+The problem with this approach is that it treats all processes equally and fairly. Doing things this way is great for a desktop environment, where we are trying to maximise the throughput of all the processes we have, i.e. do the most work with the limited hardware we have. However, where this approach is a hindrance is when we have tasks that do have higher priority and that have latency requirements over other tasks. 
+
+When we have these sorts of requirements, as we often do with embedded systems, we need a Real-Time Operating System (RTOS) that considers tasks priority. We will go into the RTOS details in a little while.
+
+### Memory Hierarchy
+
+A stark tradeoff exists in computer systems between data storage volume and access speed and cost. Managing the variation in access speeds can cause __huge__ variations in execution time latency.
+
+For instance, SRAM is a high-speed memory that lives very close to the processor; however, usually, it's size is in the order of KBs or MBs. On the other hand, magnetic-disk based hard drives are a glacially slow storage medium, but their size is in the order of TBs.
+
+To put this tradeoff in perspective, let's consider an analogy. Let's say that accessing data from our fast SRAM close to our processor is equivalent to travelling from the Computational Foundry to the Bay Library to check out a book.
+
+![](imgs/CoFo_2_library_small.png)
+
+Okay, great, that didn't take too long. Now let's say that what we are looking for isn't in our fast SRAM, and instead, we have to go to System Memory (the RAM of our machine). If going to SRAM is the same as travelling to the Library, then going to System Memory is the same as travelling to Bridgend.
+
+![](imgs/CoFo_2_Bridgend_small.png)
+
+Now, say we can't find what we are looking for in system memory (system RAM), we need to start going to solid-state drive (SSD) storage to look for our item. Intel has recently released some blazingly fast SSDs based on a technology called 3D XPoint; let's imagine we're lucky one of these devices. Accessing this is the equivalent to going to Bergen, Norway.
+
+![](imgs/CoFo_2_Bergen_small.png)
+
+Okay, let's imagine that we are not so lucky, and we just have a standard run-of-the-mill SSD. Instead of travelling to Bergen, we're now travelling to Manilla.
+
+![](imgs/CoFo_2_Manilla_small.png)
+
+Now, instead of an SSD, consider if we had a magnetic disk-based Hard Disk Drive. Then accessing our data would be the equivalent to travelling 10% of the distance to Mars.
+
+__TODO:__ Picture of a cache
 
 ## Demonstration
 
