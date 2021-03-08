@@ -31,7 +31,6 @@ Variations in execution time occur at all levels of the computer stack and in ma
 
 1. OS scheduler: when deciding which task to execute when
 4. In the Memory Hierarchy: disk -> RAM -> cache L2 -> cache L1
-2. Virtual Memory
 3. I/O: Arbitration and access to busses
 5. Internally within the CPU: branch prediction, speculative execution
 
@@ -71,6 +70,10 @@ Now, instead of an SSD, consider if we had a magnetic disk-based Hard Disk Drive
 
 __TODO:__ Picture of a cache
 
+### Internally within the CPU
+
+__TODO:__ Information on speculative execution
+
 ## Demonstration
 
 We are going to compare the execution of a benchmark function on two different platforms.
@@ -97,16 +100,39 @@ void compute(){
 }
 ```
 
-__Include a diagram of the experimental setup__
+15.6K Floating point operations
 
+__TODO: Include a diagram of how matrix-vector multiplication works.__
+
+__TODO: Include a diagram of the experimental setup__
+
+__TODO: Information about the PYNQ setup__
 
 ![](imgs/pynq_wcet_base.gif)
 
+__TODO: Information about the ESP32 setup__
+
 ![](imgs/wcet.gif)
+
+__TODO: Zooming out__
 
 ![](imgs/wcet_zooming_out.gif)
 
+### Pinging the devices a lot
+
 ![](imgs/wcet-ddos.gif)
+
+### Logging in via ssh
 
 ![](imgs/wcet-pynq-ssh.gif)
 
+## Real-Time Operating Systems (RTOS)
+
+* An operating system that enforces timing
+* Multi-tasking, but we need tasks to happen at precise times
+* Ticks & Tasks
+* Ticks break the tasks up into discrete chunks (ABSTRACTION)
+* Scheduling: Priorities and Determinism
+* Highest priority will starve everything?
+* Introduce blocking
+* An RTOS will run the highest priority __blocked__ task.
