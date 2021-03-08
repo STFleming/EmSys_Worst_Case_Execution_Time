@@ -190,13 +190,25 @@ void compute(){
 }
 ```
 
-15.6K Floating point operations
+This function is a reasonably compute-intensive operation. We need to iterate over the entire matrix and multiple each element in the matrix row, with each element in the column of the vector, accumulating the result in the returned vector.
 
-__TODO: Include a diagram of how matrix-vector multiplication works.__
+![](imgs/matVecMul.svg)
 
-__TODO: Include a diagram of the experimental setup__
+__Don't worry if you don't follow the maths of this, it's just an example function we are using__
 
-__TODO: Information about the PYNQ setup__
+## Experimental Setup
+
+As stated earlier, we will examine the execution time variance on two different embedded systems, an ARM-based system running Linux (PYNQ) and the TinyPico.
+
+![](imgs/experimental_setup.svg)
+
+Each device connects to my home network. The PYNQ connects to the router via ethernet, as the ESP32 transfers data over WiFi.                                  
+Each device will execute the same benchmark. The execution time is measured, and each device sends its measurement via WebSockets to a central server. The server renders a dynamic histogram for each devices execution time.
+The timer code only times the benchmark execution; none of the transfer time is captured or measured.
+
+## PYNQ Experimental setup
+
+
 
 ![](imgs/pynq_wcet_base.gif)
 
