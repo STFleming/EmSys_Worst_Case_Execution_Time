@@ -6,7 +6,7 @@ One _very_ important consideration when designing a system is how long things ta
 
 Imagine you're responsible for designing part of an accelerator control system for a self-driving car. Your subsystem takes in readings from a LIDAR sensor, processes them, and sends the output to the accelerator controller. You may have quite a powerful microcontroller for your subsystem that can comfortably process the sensor data quickly and efficiently without too much trouble. However, if there is even a tiny chance that your system takes longer than it should, then you can have a big problem.
 
-If your subsystem takes too long to process, it may result in a danger to life. Okay, but there are always risks in these things; what if the task's delay is incredibly rare? Even if this is the case, it can present a severe issue. Imagine the self-driving car you are working on is deployed millions of times and runs for ten or more years. Suddenly the probabilities of even those very rare-events are starting to creep up, and any danger to life is unacceptable when we can design to avoid it.
+If your subsystem takes too long to process, it may result in a danger to life. Okay, but there are always risks in these things; what if any sort of delay is incredibly rare? Even if this is the case, it can present a severe issue. Imagine the self-driving car you are working on is deployed millions of times and runs for ten or more years. Suddenly the probabilities of even those very rare-events are starting to creep up, and any danger to life is unacceptable when we can design to avoid it.
 
 __When designing such embedded systems it is crucial that:__
 
@@ -25,18 +25,28 @@ For real-time systems, such as the self-driving car we discussed earlier, timing
 
 ### Sources of non-determinism
 
-__TODO:__ Include a picture of the stack
+![](imgs/stack.svg)
 
 Variations in execution time occur at all levels of the computer stack and in many different places. Some examples at various levels are:
 
 1. OS scheduler: when deciding which task to execute when
-4. In the Memory Hierarchy: disk -> RAM -> cache L2 -> cache L1
-3. I/O: Arbitration and access to busses
+4. In the Memory Hierarchy, for example, caching
+3. I/O Arbitration
 5. Internally within the CPU: branch prediction, speculative execution
 
-Let's dig into a few of these in a bit more detail; unfortunately, we don't have time to explore everything that can introduce non-determinism (that would take a while).
+Let's dig into a few of these in a bit more detail; unfortunately, we don't have time to explore everything that can introduce non-determinism __(that would take a while).__
 
 ### OS Scheduler
+
+Typically computers run many tasks, and so managing 
+
+![](imgs/Tasks_and_cores.svg)
+
+__TODO:__ Some text about managing tasks and cores
+
+![](imgs/TimeAllocation_Scheduler.svg)
+
+__TODO:__ Some text about creating a schedule
 
 Linux uses something called the __Completely Fair Scheduler__ ([CFS](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler)), which we won't go into the details of here. But the basic principles are that we have multiple processes, and the scheduler allocated processes to hardware CPUs trying to give all the processes an equal amount of resources.
 
@@ -46,9 +56,11 @@ When we have these sorts of requirements, as we often do with embedded systems, 
 
 ### Memory Hierarchy
 
+![](imgs/mem_hierarchy_devices.svg)
+
 A stark tradeoff exists in computer systems between data storage volume and access speed and cost. Managing the variation in access speeds can cause __huge__ variations in execution time latency.
 
-For instance, SRAM is a high-speed memory that lives very close to the processor; however, usually, it's size is in the order of KBs or MBs. On the other hand, magnetic-disk based hard drives are a glacially slow storage medium, but their size is in the order of TBs.
+For instance, usually there is some high-speed SRAM memory that lives very close to the processor; however, typiucally, it's size is in the order of KBs or MBs. On the other hand, magnetic-disk based hard drives are a glacially slow storage medium, but their size is in the order of TBs.
 
 To put this tradeoff in perspective, let's consider an analogy. Let's say that accessing data from our fast SRAM close to our processor is equivalent to travelling from the Computational Foundry to the Bay Library to check out a book.
 
@@ -66,20 +78,98 @@ Okay, let's imagine that we are not so lucky, and we just have a standard run-of
 
 ![](imgs/CoFo_2_Manilla_small.png)
 
-Now, instead of an SSD, consider if we had a magnetic disk-based Hard Disk Drive. Then accessing our data would be the equivalent to travelling 10% of the distance to Mars.
+Now, instead of an SSD, consider if we had a magnetic disk-based Hard Disk Drive. Then accessing our data would be the equivalent twice the distance to Mars.
 
-__TODO:__ Picture of a cache
+![](imgs/earth_mars.svg)
+
+This memory hierarchy is often shown as a pyramid that as you go up, you get increasing cost and performance, and as you go down, you get increased volume.
+
+![](imgs/mem_pyramid.svg)
+
+At the very bottom of the pyramid, I have included remote storage. Remote storage is becoming increasingly a concern for IoT style embedded systems that send their data to the cloud for storage.
+
+### Managing the memory hierarchy
+
+Generally to manage this memory hierarchy we use something called caching, where we store recently used items in the faster access memory. Caching, introduces big variations in execution time, if the item is in the cache then we get a short execution time, if it's not in the cache, the execution time can be very long.
+
+Let's consider the top level of the memory hierarchy, the fast SRAM memory close to the processor.
+
+Say we are loading an item __x__ from memory
+
+![](imgs/cache_0.svg)
+
+First we check the fast access memory for __x__
+
+![](imgs/cache_1.svg)
+
+If the item is not in the cache then we need to go to system memory (DDR)
+
+![](imgs/cache_2.svg)
+
+We fetch the item from system memory (DDR) and load it into the cache
+
+![](imgs/cache_3.svg)
+
+Then if a little later on we request __x__ again, then it hits in the cache and accesses it much faster.
+
+![](imgs/cache_4.svg)
+
+Thinking again about the scales discussed previously:
+* A cache hit is like walking from the Computational Foundry to the Bay Campus library to check out a book
+* A cache miss is like walking from the Computational Foundry to Bridgend to check out a book
+
+No wonder cache's have a big impact on execution time variation.
 
 ### Internally within the CPU
 
-__TODO:__ Information on speculative execution
+It's not just memory and I/O that can introduce non-determinism in the execution time of a task.
+It's also possible to introduce it from within the CPU itself.
+
+![](imgs/pipeline.svg)
+
+CPUs are generally organised a bit like a conveyor belt.                               
+Instructions flow from left to right, and each unit does a little bit of work on each instruction as it passes through.
+At any moment in time, each unit in the CPU will be working on a different instruction; this is something called pipeline parallelism.
+The image above is a simple 5-stahge pipeline, where the stages are:
+
+1. Fetch: fetches the next instruction from the instruction memory
+2. Decode: decodes the instruction and fetches data from internal registers        
+3. Execute: perform an operation with the ALU, such as add some numbers, or subtract 
+4. Mem: send a read or write operations to memory
+5. Write back: writes data back into the registers of the CPU
+
+One optimisation in many modern CPUs is something called speculative execution.
+Let's consider the following code:
+
+```C
+if(x > 10) {
+        branch_1();
+} else {
+        branch_2();
+}
+```
+
+If we fetch the instructions for the corresponding branch for ```if(x > 10)```, then we won't know what the following instructions are until the end of the __Execute__ stage of the processor pipeline.
+There are two things that you can do:
+
+1. stall the pipeline behind the ```if( x > 10)``` until we know the outcome   
+2. guess and start fetching instructions
+
+The guessing approach is called branch prediction, and modern CPUs are surprisingly good at it.
+. 
+CPUs will use previous information on branches to make good guesses and keep the conveyor belt full and moving smoothly; the problem is when they guess incorrectly.
+After guessing incorrectly, the pipeline needs to be flushed, removing the incorrect instructions. Fixing this can take time and introduce delays.
+
+__So, that's another source of execution time variance. When we guess correctly, we go slightly faster than when we are incorrect.__
+
+Admittedly, this is a tiny performance boost compared to caches. The performance gains from caches are __gigantic__.
 
 ## Demonstration
 
 We are going to compare the execution of a benchmark function on two different platforms.
 
 1. An dual-core (800MHz) ARM processor running Linux
-2. Our ESP32 (230MHz) device                    
+2. Our ESP32 (240MHz) device                    
 
 The benchmark we will use is a matrix-vector multiplication, a typical operation used in machine learning applications or signal processing. 
 
