@@ -136,3 +136,12 @@ __TODO: Zooming out__
 * Highest priority will starve everything?
 * Introduce blocking
 * An RTOS will run the highest priority __blocked__ task.
+* Blocking: Explicit delays
+* Blocking: Blocked on inter-task communications
+* Example:
+* Example: Hard-coded
+* Example: Interrupt-driven
+* Limitations with the interrupt-driven approach
+* Example: RTOS
+* Intertask communications: Overview
+* FreeRTOS and the ESP32
