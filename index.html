@@ -21,6 +21,216 @@
                                 __Worst-Case Execution Time and Real-Time Operating Systems__                    
                         </textarea>
                    </section>
+<section data-autoplay data-background-video-loop data-background-video="media/tesla_self_driving.mp4"></section>
+<section data-autoplay data-background-video-loop data-background-video="media/radiation_therapy_machine_cut.mp4"></section>
+<section data-autoplay data-background-video-loop data-background-video="media/airplane_vintage.mp4"></section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __embedded systems need precise timing guarantees__
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                               ## outline
+                               1. Sources of execution time variation
+                               2. sli.do questions
+                               3. Demonstration of execution time variation
+                               4. sli.do questions
+                               5. Real-Time Operating Systems
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __sources of execution time variation__
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/stack.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                1. OS Scheduler
+                                2. Memory Hierarchy
+                                3. I/O Arbitration
+                                4. Internally within CPU
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __OS Scheduler__
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/Tasks_and_cores.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/TimeAllocation_Scheduler.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __Memory Hierarchy__
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/mem_hierarchy_devices.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/CoFo_2_Library.png)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/mem_hierarchy_devices.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/CoFo_2_bridgend.png)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/mem_hierarchy_devices.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __fast SSD__
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/CoFo_2_Bergen.png)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __regular SSD__
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/CoFo_2_Manilla.png)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __magnetic disk HDD__
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/earth_mars.svg)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/mem_pyramid.svg)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __caching__
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/cache_0.svg)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/cache_1.svg)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/cache_2.svg)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/cache_3.svg)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/cache_4.svg)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __Demonstration__                    
+                        </textarea>
+                   </section>
+
+                  <section>
+                          <pre><code data-trim data-noescape>
+                volatile float rvec [125];
+                volatile float rmat [125][125];
+                float res [125];
+                
+                void matVecMul(){
+                  for(int i=0; i<125; i++) {
+                    res[i] = 0.0;
+                    for(int j=0; j<125; j++) {
+                      res[i] += rvec[j] * rmat[i][j];    
+                    }
+                  }
+                }
+
+                          </code></pre>
+                  </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/matVecMul.svg)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/experimental_setup.svg)                   
+                        </textarea>
+                   </section>
+
 
                    <section data-transition="none" data-markdown>
                         <textarea data-template>
@@ -302,6 +512,15 @@
                    <section data-transition="none" data-markdown>
                         <textarea data-template>
                                 ![](imgs/comms_blocked.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                               ## Conclusion 
+                               1. Variation in Execution Time
+                               2. Saw this in some real systems 
+                               3. Real-Time Operating Systems
                         </textarea>
                    </section>
 			</div>

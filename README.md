@@ -17,7 +17,7 @@ To make safe embedded systems, we need to ensure that our devices behave predict
 
 A deterministic program is usually one where the program's outputted data is the same every single execution. However, with real-time systems, we take a stricter view on determinism and say that:
 
-__The programs outputted data _and the timings of the outputs_ should be the same every execution__
+__The systems outputted data _and the timings of the outputs_ should be the same every execution__
 
 Our desktop computers are throughput orientated machines. They aim to get the most work done in a given time. If we have many tasks, the computer can execute them in an arbitrary order to maximise the most output. Typical machines are also __abstracted__ to hide the system's timings to relieve the programmer's burden. Think about it: when you read or write to a variable in your program, or access a pointer, do you ever need to care how long it takes to fetch it from the memory subsystem? It's all completely invisible to you.
 
