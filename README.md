@@ -180,7 +180,7 @@ volatile float rvec [125];
 volatile float rmat [125][125];
 float res [125];
 
-void compute(){
+void matVecMul(){
   for(int i=0; i<125; i++) {
     res[i] = 0.0;
     for(int j=0; j<125; j++) {
@@ -208,23 +208,59 @@ The timer code only times the benchmark execution; none of the transfer time is 
 
 ## PYNQ Experimental setup
 
-
+Running the benchmark on the PYNQ board produces the following real-time histogram of the execution time latencies:
 
 ![](imgs/pynq_wcet_base.gif)
 
-__TODO: Information about the ESP32 setup__
+The dashed lines show the different percentiles, i.e. the 75% line indicates that 75% of the latencies are to the left of the line, and 25% are to the right.
+
+We can see there is quite a considerable variation in execution time here. There seems to be a peak above the 75% mark; this could due to other processes coming in and consuming CPU time.
+
+It is also possible to see that the highest bin is quite full; this means that there are probably a couple of latencies that go off the chart (explored later).
+
+When we start the experiment on the ESP32, the following histogram gets added below:
 
 ![](imgs/wcet.gif)
 
-__TODO: Zooming out__
+The results from the ESP32 are noticeably different from the PYNQ results. Here, we can see a variance in execution time of maybe 25us, whereas on the PYNQ, it varies wildly, >250us.
+
+Notably,  for the ESP32, the tail latency (99.99% point) is quite tight with the rest of the latencies, meaning that in the worst-case, the execution time is not much worse than the average case. 
+
+However, we do see that overall the ESP32 is considerably slower than the PYNQ. This slower speed makes sense. The PYNQs ARM CPU operates much faster; it runs at 240MHz instead of 800MHz. The ARM CPU is also a bigger, more complex processor with bigger caches. 
+
+Remember I said that the PYNQ latencies went off the chart. Let's zoom out to find out just how far they go.
 
 ![](imgs/wcet_zooming_out.gif)
 
+Zooming out, we can see that occasionally the 99.99% point goes quite far out reaching over 465us!
+
 ### Pinging the devices a lot
+
+Both devices connect to the network, and we can send network packets to them. When a network packet is received, the CPU will need to perform some tasks to process them.                                                                        
+
+Let's pretend that we are an attack trying to influence the functionality of an embedded system. We don't have access to the embedded system, but we have access to the network it is attached to, and we know the target devices IP address.
+
+With this simple command, we can issue a flood of ping requests to the device, sending network packets as fast as we can:
+
+```sh
+    ping -f 192.168.0.101
+```
+
+As the embedded system processes these packets, it will have fewer CPU cycles to spare on processing the critical task, and the critical tasks execution time might increase.
+
+Look at the histograms below when the ``ping -f`` command is issued and observe how the 99.99% latency point changes for the PYNQ device.
 
 ![](imgs/wcet-ddos.gif)
 
+Interestingly, when the command is issued, we can see a considerable increase in the 99.99% latencies for the PYNQ board, but the ESP32 barely changes. On the ESP32,  a small increase in 99.99% of just 1us, unlike the PYNQ, which increases by over 400us.
+
+Why is the ESP32s latency not affected as much by the ping flood? The answer is because of the operating system on the ESP32. The ESP32 is running a Real-Time Operating System (RTOS). This RTOS schedules tasks differently from the Linux scheduler. On an RTOS, it's possible to assign tasks hard priorities, enabling them to take preference over other tasks. This prioritising allows our tasks execution to be barely affected by the increase in network traffic. However, the completely fair scheduler of Linux is trying to balance the load for all the system tasks, including processing the useless incoming network packets. Since the Linux scheduler is trying to do things fairly, this eats into the processing time allocated for our tasks, increasing its worst-case execution time.
+
+Imagine a situation where we have constructed a self-driving car. In many of these complex systems, there are local networks that connect various embedded systems and modules. We don't need access to the system to effect it. We could place devices within the network that generate network traffic, seriously disrupting the victim system, causing it to miss deadlines, and potentially endangering lives.
+
 ### Logging in via ssh
+
+Of course, if the attacker does have access to the PYNQ device, they can seriously disrupt our task's execution time. Look what happens when a user connects in via ssh:
 
 ![](imgs/wcet-pynq-ssh.gif)
 
