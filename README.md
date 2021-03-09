@@ -266,6 +266,8 @@ Of course, if the attacker does have access to the PYNQ device, they can serious
 
 ## Real-Time Operating Systems (RTOS)
 
+In the experiments above
+
 * An operating system that enforces timing
 * Multi-tasking, but we need tasks to happen at precise times
 * Ticks & Tasks
