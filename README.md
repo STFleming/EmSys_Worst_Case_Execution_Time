@@ -38,16 +38,6 @@ Let's dig into a few of these in a bit more detail; unfortunately, we don't have
 
 ### OS Scheduler
 
-Typically computers run many tasks, and so managing 
-
-![](imgs/Tasks_and_cores.svg)
-
-__TODO:__ Some text about managing tasks and cores
-
-![](imgs/TimeAllocation_Scheduler.svg)
-
-__TODO:__ Some text about creating a schedule
-
 Linux uses something called the __Completely Fair Scheduler__ ([CFS](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler)), which we won't go into the details of here. But the basic principles are that we have multiple processes, and the scheduler allocated processes to hardware CPUs trying to give all the processes an equal amount of resources.
 
 The problem with this approach is that it treats all processes equally and fairly. Doing things this way is great for a desktop environment, where we are trying to maximise the throughput of all the processes we have, i.e. do the most work with the limited hardware we have. However, where this approach is a hindrance is when we have tasks that do have higher priority and that have latency requirements over other tasks. 
@@ -266,22 +256,86 @@ Of course, if the attacker does have access to the PYNQ device, they can serious
 
 ## Real-Time Operating Systems (RTOS)
 
-In the experiments above
+A Real-Time Operating System (RTOS) is typically a lightweight operating system for embedded devices that enable multiple tasks to share the same hardware resources while providing the developer control over tasks' timing. 
 
-* An operating system that enforces timing
-* Multi-tasking, but we need tasks to happen at precise times
-* Ticks & Tasks
-* Ticks break the tasks up into discrete chunks (ABSTRACTION)
-* Scheduling: Priorities and Determinism
-* Highest priority will starve everything?
-* Introduce blocking
-* An RTOS will run the highest priority __blocked__ task.
-* Blocking: Explicit delays
-* Blocking: Blocked on inter-task communications
-* Example:
-* Example: Hard-coded
-* Example: Interrupt-driven
-* Limitations with the interrupt-driven approach
-* Example: RTOS
-* Intertask communications: Overview
-* FreeRTOS and the ESP32
+The two critical components of an RTOS are the tasks and the scheduling ticks.
+
+![](imgs/tasks_3.svg)
+
+Tasks are a unit of functionality. You can think of them as similar to an ISR; however, they do not have some of the same restrictions. For instance, you can have quite large tasks as ISRs should be kept small. Some example tasks could be periodically encrypting a buffer full of data or occasionally blinking and LED.
+
+Tasks in an RTOS have a few states that they can be in any given moment in time:
+* They can be __running__: in which case they have been allocated a CPU and are executing.
+* They can be __ready__: they have indicated to the RTOS that they are prepared to run, but are not currently running on a CPU.
+* Or they can be __blocked__: they are waiting on a timer, or perhaps some external I/O and cannot run until that occurs.
+
+
+![](imgs/ticks_5.svg)
+
+The next main component of an RTOS is the tick, an ISR that executes periodically. A hardware timer on the MCU generates the interrupt that triggers the ISR. It is the responsibility of this ISR to schedule tasks onto processors.
+
+![](imgs/ticks_6.svg)
+
+Every "tick", the ISR will look at the tasks available and the currently running tasks and decide whether to swap what is presently running on the core.
+
+
+![](imgs/ticks_10.svg)
+
+Remember that tasks can either be running, ready, or blocked. The RTOS scheduler will look at all the running tasks and all the ready tasks and decide whether to swap a running task with a ready task. These scheduling decisions are often configurable, with different tradeoffs. However, the most common scheduling approach for an RTOS is __Fixed-Priority Preemptive Scheduling__.
+
+### Fixed-Priority Preempive Scheduling
+
+![](imgs/preemptive.svg)
+
+Let's start with preemptive scheduling, which means that the operating system can swap what is executing on a given core with a different task. For instance, say task T1 is running on a CPU, then preemption means that before the T1 has completed, the RTOS can pause it, remove it from the core, and load T2 instead. T1 can then be resumed at a later point. Preemption is excellent because it allows us to have multiple tasks sharing the same hardware. However, we need to be careful. Swapping tasks, called a context switch, has overheads similar to the overheads of calling an ISR if we do it too frequently, then we will be wasting time and energy.
+
+![](imgs/fixed_priority_preemptive.svg)
+
+So RTOSs are usually preemptive, but they also have some notion of priority. Priority is what gives the developers control of the timing over the execution of the task. The example above shows T1 and T2 now assigned with priorities 5 and 0, respectively. With fixed-priority  preemptive scheduling, we restrict the preemption such that only a higher priority task can preempt a lower priority task. This example would mean that T1 can preempt T0; however, T2 cannot preempt T1.  Having a priority allows us to guarantee that certain critical tasks will complete in a tighter bounded amount of time. They are guaranteed to take control of the CPU, no matter what other tasks are executing.
+
+![](imgs/starving.svg)
+
+Having priorities gives us a lot of control, but isn't there a danger? Won't the highest priority task take control over the CPU and starve all other tasks from executing?
+
+Preventing the starvation of tasks is where the notion of blocking comes into play. Blocking is where a task must voluntarily release control of the CPU to allow other tasks to execute. It is also something that the embedded system developer must explicitly think about when designing the system. There are two primary ways for a task in an RTOS to block:
+
+![](imgs/blocking_2.svg)
+
+Tasks can block by either going to sleep or waiting for an event or message. When a task goes to sleep, it places it into a blocked state for a finite number of RTOS ticks, allowing another task to execute. When the amount of ticks elapses, the RTOS, during the scheduling ISR, will wake up the task and change its state to ready. The other way a task can block is waiting for a message from another task; or an event, like I/O being made available.
+
+### Example
+
+Let's consider an example:
+
+![](imgs/example_2_tighter.svg)
+
+Say we have three tasks, T1, T2, and T3. Each of these tasks has priorities 5, 3, and 0, respectively. 
+
+* T1 enters an infinite loop ``while(true)`` and then calls a function to collect some data with ``getData()``. It then goes to sleep for 1000 ms (1s), placing it in a blocked state.
+
+* T2 also enters an infinite loop where it calls a function to process the gathered data ``processData()``. It then goes to sleep for 3000 ms (3s).
+
+* Finally, T3 also enters an infinite loop where it calls a function that flashes an LED; it never sleeps and never enters a blocking state.
+
+![](imgs/example_4.svg)
+
+Let's say that initially, T3 is executing, and it is blinking the LED for 1 second.
+
+
+![](imgs/example_5.svg)
+
+After 1s, T1 wakes up and gets scheduled on the cores, preempting T3, as it has a higher priority than T3. Once it has finished executing, it goes to sleep, and T3 resumes running from where it left off.
+
+![](imgs/example_6.svg)
+
+After another 1s the same thing happens again: T1 wakes up, preempting T3.
+
+![](imgs/example_7.svg)
+
+Finally, after 3s, T2 is ready to wake up. However, at this point, T1 wakes up also. Since T1 has a higher priority than T2, it takes control of the processor first. Once it finishes, T2 can then execute before finally allowing T3 to run.
+
+
+An RTOS is a powerful and useful abstraction to use when designing embedded systems. They abstract a lot of the task management, are simpler and safer to use than ISRs, and only require a single timer to schedule multiple tasks with real-time constraints.
+
+
+An RTOS is a powerful and valuable abstraction to use when designing embedded systems. They abstract away a lot of the task management, are simpler and safer to use than ISRs, and only require a single timer to schedule multiple tasks with real-time constraints. However, care still must be taken. It is the programmer's responsibility to correctly implement tasks appropriately and ensure that tasks block preventing other tasks from being starved.
