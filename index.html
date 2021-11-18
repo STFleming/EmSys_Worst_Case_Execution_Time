@@ -16,11 +16,20 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
+
                    <section data-transition="none" data-markdown>
                         <textarea data-template>
-                                __Worst-Case Execution Time and Real-Time Operating Systems__                    
+                                __Time in Embedded Systems__                    
                         </textarea>
                    </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __News__                    
+                        </textarea>
+                   </section>
+
+
 <section data-autoplay data-background-video-loop data-background-video="media/tesla_self_driving.mp4"></section>
 <section data-autoplay data-background-video-loop data-background-video="media/radiation_therapy_machine_cut.mp4"></section>
 <section data-autoplay data-background-video-loop data-background-video="media/airplane_vintage.mp4"></section>
@@ -35,16 +44,15 @@
                         <textarea data-template>
                                ## outline
                                1. Sources of execution time variation
-                               2. sli.do questions
                                3. Demonstration of execution time variation
-                               4. sli.do questions
+                               4. Interrupts
                                5. Real-Time Operating Systems
                         </textarea>
                    </section>
 
                    <section data-transition="none" data-markdown>
                         <textarea data-template>
-                                __sources of execution time variation__
+                                __what are some sources of execution time variation?__
                         </textarea>
                    </section>
 
@@ -152,6 +160,12 @@
 
                    <section data-transition="none" data-markdown>
                         <textarea data-template>
+                                __how can we manage this memory hierarchy?__
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
                                 __caching__
                         </textarea>
                    </section>
@@ -188,11 +202,59 @@
 
                    <section data-transition="none" data-markdown>
                         <textarea data-template>
+                                ![](imgs/CoFo_2_Library.png)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/CoFo_2_bridgend.png)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/stack.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
                                 __Demonstration__                    
                         </textarea>
                    </section>
 
-                  <section>
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __Worst Case Execution Time (WCET)__                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __how is this determined?__                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __how can you guarantee the most deterministic execution time of a task?__                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/ESP32_Function_Block_Diagram.svg)                   
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __measuring WCET on a CPU__                    
+                        </textarea>
+                   </section>
+
+                  <section data-transition="none">
                           <pre><code data-trim data-noescape>
                 volatile float rvec [125];
                 volatile float rmat [125][125];
@@ -219,6 +281,186 @@
                    <section data-transition="none" data-markdown>
                         <textarea data-template>
                                 ![](imgs/experimental_setup.svg)                   
+                        </textarea>
+                   </section>
+
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                __Interrupts__                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/interrupts_and_timers.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/switch.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                           <pre><code data-trim data-noescape>
+
+
+
+            void setup() {
+                 pinMode(5, INPUT);
+             }
+             
+             bool pinState;
+             bool tmp;
+             
+             void loop() {
+                tmp = digitalRead(5); 
+                if(tmp != pinState) {
+                    // the pin has changed state
+                    pinState = tmp; 
+                }
+             }
+
+
+
+        </code></pre>
+                   </section>
+
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/polling_latency.svg)                    
+                        </textarea>
+                   </section>
+
+<section data-transition="none" data-markdown>
+      <pre><code data-trim data-noescape>
+
+             
+             void loop() {
+                tmp = digitalRead(5); 
+                if(tmp != pinState) {
+                    // the pin has changed state
+                    pinState = tmp; 
+                }
+                processing(); // a long function call
+             }
+
+
+
+   </code></pre>
+</section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/polling_long_latency.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/alarm.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/interrupt_preempt.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/flow_no_interrupts.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/isr_flow.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                1. An interrupt request (IRQ) occurs
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                1. An interrupt request (IRQ) occurs
+                                2. Interrupt controller pauses the CPU execution
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                1. An interrupt request (IRQ) occurs
+                                2. Interrupt controller pauses the CPU execution
+                                3. The context of the CPU is saved
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                1. An interrupt request (IRQ) occurs
+                                2. Interrupt controller pauses the CPU execution
+                                3. The context of the CPU is saved
+                                4. A small Interrupt Service Routine (ISR) is loaded 
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                1. An interrupt request (IRQ) occurs
+                                2. Interrupt controller pauses the CPU execution
+                                3. The context of the CPU is saved
+                                4. A small Interrupt Service Routine (ISR) is loaded 
+                                5. The ISR is executed
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                1. An interrupt request (IRQ) occurs
+                                2. Interrupt controller pauses the CPU execution
+                                3. The context of the CPU is saved
+                                4. A small Interrupt Service Routine (ISR) is loaded 
+                                5. The ISR is executed
+                                6. The context of the CPU is restored
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                1. An interrupt request (IRQ) occurs
+                                2. Interrupt controller pauses the CPU execution
+                                3. The context of the CPU is saved
+                                4. A small Interrupt Service Routine (ISR) is loaded 
+                                5. The ISR is executed
+                                6. The context of the CPU is restored
+                                7. The CPU resumed from where it was interrupted              
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/interrupt_latency_timing.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/interrupt_predictable_latency.svg)                    
+                        </textarea>
+                   </section>
+
+                   <section data-transition="none" data-markdown>
+                        <textarea data-template>
+                                ![](imgs/when_to_use_polling.svg)                    
                         </textarea>
                    </section>
 
@@ -511,7 +753,8 @@
                                ## Conclusion 
                                1. Variation in Execution Time (Memory Hierarchy)
                                2. Saw this in some real systems 
-                               3. Real-Time Operating Systems
+                               3. Interrupts and ISRs
+                               4. Real-Time Operating Systems
                         </textarea>
                    </section>
 			</div>
